@@ -26,7 +26,7 @@ namespace Jellyfin.Plugin.Watchlist
             try
             {
                 var (file, config, pages) = Load(paths);
-                if (!pages.Any(p => p?["Id"]?.GetValue<string>() == PageId))
+                if (!pages.Any(IsOurEntry))
                 {
                     pages.Add(NewEntry());
                     Save(file, config);
@@ -49,7 +49,7 @@ namespace Jellyfin.Plugin.Watchlist
                 var removed = 0;
                 for (var i = pages.Count - 1; i >= 0; i--)
                 {
-                    if (pages[i]?["Id"]?.GetValue<string>() == PageId)
+                    if (IsOurEntry(pages[i]))
                     {
                         pages.RemoveAt(i);
                         removed++;
@@ -75,6 +75,13 @@ namespace Jellyfin.Plugin.Watchlist
             ["DisplayText"] = "Watchlist",
             ["Icon"] = "bookmark",
         };
+
+        private static bool IsOurEntry(JsonNode? entry)
+        {
+            return entry?["Id"] is JsonValue value
+                && value.TryGetValue<string>(out var id)
+                && id == PageId;
+        }
 
         private static (string file, JsonObject config, JsonArray pages) Load(IApplicationPaths paths)
         {

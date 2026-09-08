@@ -21,5 +21,5 @@ watchlist sync.
 
 ```sh
 scripts/build.sh
-node --test tests/
+node --test 'tests/**/*.test.js'
 ```

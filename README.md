@@ -28,3 +28,7 @@ Episodes) the Watchlist page lists, and whether the poster hover overlay button 
 scripts/build.sh
 node --test 'tests/**/*.test.js'
 ```
+
+## License
+
+MIT. See [LICENSE](LICENSE).

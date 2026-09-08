@@ -174,7 +174,15 @@
       if (!root || !root.offsetParent) return;
       const ids = e.detail && e.detail.ids;
       if (!Array.isArray(ids)) return;
-      ids.forEach((id) => { if (!W.isOnWatchlist(id)) dropCard(root, id); });
+      let needsRender = false;
+      ids.forEach((id) => {
+        if (!W.isOnWatchlist(id)) {
+          dropCard(root, id);
+        } else if (!root.querySelector(`.jfw-card[data-id="${CSS.escape(id)}"]`)) {
+          needsRender = true;
+        }
+      });
+      if (needsRender) render(root);
     });
   });
 })(typeof window !== 'undefined' ? window : globalThis);

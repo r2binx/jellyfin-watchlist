@@ -18,6 +18,10 @@ jobs:
         run: |
           V="${GITHUB_REF_NAME#v}"
           case "$V" in *.*.*.*) ;; *) V="$V.0" ;; esac
+          if ! printf '%s' "$V" | grep -Eq '^[0-9]+(\.[0-9]+){3}$'; then
+            echo "tag $GITHUB_REF_NAME does not resolve to a four-part numeric version (got $V)" >&2
+            exit 1
+          fi
           echo "VERSION=$V" >> "$GITHUB_ENV"
       - run: dotnet build Jellyfin.Plugin.Watchlist/Jellyfin.Plugin.Watchlist.csproj -c Release -p:Version=$VERSION -p:AssemblyVersion=$VERSION -p:FileVersion=$VERSION
       - name: Package
@@ -32,7 +36,7 @@ jobs:
         env: { GH_TOKEN: '${{ github.token }}' }
         run: |
           git fetch origin main
-          git checkout main
+          git checkout -B main origin/main
           node scripts/update-manifest.mjs "$VERSION" "$ZIP" "https://github.com/${GITHUB_REPOSITORY}/releases/download/${GITHUB_REF_NAME}/${ZIP}" "See https://github.com/${GITHUB_REPOSITORY}/releases/tag/${GITHUB_REF_NAME}"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

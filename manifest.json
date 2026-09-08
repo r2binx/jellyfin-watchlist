@@ -1,0 +1,12 @@
+[
+  {
+    "guid": "06dd4cfd-82bc-401c-9fde-6769ed8c4032",
+    "name": "Watchlist",
+    "description": "Watchlist page and add/remove buttons for jellyfin-web, backed by Jellyfin's native Likes user data.",
+    "overview": "Standalone watchlist UI for Jellyfin 12.",
+    "owner": "r2binx",
+    "category": "General",
+    "imageUrl": "",
+    "versions": []
+  }
+]

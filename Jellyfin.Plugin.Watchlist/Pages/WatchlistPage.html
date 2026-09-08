@@ -1,0 +1,23 @@
+<div class="jfw-root" data-jfw-page="1"></div>
+<div class="jfw-error jfw-not-loaded" style="display:none">
+  The Watchlist plugin script is not loaded. Reload the page; if it persists, check that the plugin is active and restart Jellyfin.
+</div>
+<script>
+(function () {
+  // Plugin Pages appends this fragment on every visit; keep only the newest root.
+  var roots = Array.prototype.slice.call(document.querySelectorAll('.jfw-root[data-jfw-page]'));
+  roots.slice(0, -1).forEach(function (el) { el.remove(); });
+  document.querySelectorAll('.jfw-not-loaded').forEach(function (el, i, all) { if (i < all.length - 1) el.remove(); });
+
+  var waited = 0;
+  var timer = setInterval(function () {
+    if (window.JellyfinWatchlist) { clearInterval(timer); return; }
+    waited += 100;
+    if (waited >= 5000) {
+      clearInterval(timer);
+      var err = document.querySelector('.jfw-not-loaded');
+      if (err) err.style.display = 'block';
+    }
+  }, 100);
+})();
+</script>

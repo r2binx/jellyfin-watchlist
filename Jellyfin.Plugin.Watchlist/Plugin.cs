@@ -14,6 +14,7 @@ namespace Jellyfin.Plugin.Watchlist
         public static Plugin? Instance { get; private set; }
 
         private readonly ILogger<Plugin> _logger;
+        private readonly IApplicationPaths _paths;
 
         public Plugin(IApplicationPaths applicationPaths, IXmlSerializer xmlSerializer, ILogger<Plugin> logger)
             : base(applicationPaths, xmlSerializer)
@@ -21,6 +22,8 @@ namespace Jellyfin.Plugin.Watchlist
             Instance = this;
             _logger = logger;
             _logger.LogInformation("Watchlist v{Version} initialized", Version);
+            _paths = applicationPaths;
+            PluginPagesRegistration.Register(applicationPaths, logger);
         }
 
         public override string Name => "Watchlist";
@@ -29,6 +32,12 @@ namespace Jellyfin.Plugin.Watchlist
 
         public override string Description =>
             "Watchlist page and add/remove buttons for jellyfin-web, backed by Jellyfin's native Likes user data.";
+
+        public override void OnUninstalling()
+        {
+            PluginPagesRegistration.Remove(_paths, _logger);
+            base.OnUninstalling();
+        }
 
         /// <summary>
         /// Cache-buster for the client script URL: version plus the DLL write time,

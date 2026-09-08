@@ -25,7 +25,7 @@ namespace Jellyfin.Plugin.Watchlist
         {
             try
             {
-                var (file, config, pages) = Load(paths);
+                var (file, config, pages) = Load(paths, logger);
                 if (!pages.Any(IsOurEntry))
                 {
                     pages.Add(NewEntry());
@@ -45,7 +45,7 @@ namespace Jellyfin.Plugin.Watchlist
         {
             try
             {
-                var (file, config, pages) = Load(paths);
+                var (file, config, pages) = Load(paths, logger);
                 var removed = 0;
                 for (var i = pages.Count - 1; i >= 0; i--)
                 {
@@ -83,7 +83,7 @@ namespace Jellyfin.Plugin.Watchlist
                 && id == PageId;
         }
 
-        private static (string file, JsonObject config, JsonArray pages) Load(IApplicationPaths paths)
+        private static (string file, JsonObject config, JsonArray pages) Load(IApplicationPaths paths, ILogger logger)
         {
             var dir = Path.Combine(paths.PluginConfigurationsPath, "Jellyfin.Plugin.PluginPages");
             var file = Path.Combine(dir, "config.json");
@@ -97,6 +97,11 @@ namespace Jellyfin.Plugin.Watchlist
 
             if (config["pages"] is not JsonArray pages)
             {
+                if (config["pages"] != null)
+                {
+                    logger.LogWarning("Watchlist: Plugin Pages config.json has a non-array 'pages' value; replacing it");
+                }
+
                 pages = new JsonArray();
                 config["pages"] = pages;
             }

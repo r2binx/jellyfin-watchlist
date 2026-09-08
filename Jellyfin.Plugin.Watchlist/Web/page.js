@@ -81,7 +81,9 @@
     return null;
   }
 
-  async function render(root) {
+  const inflight = new WeakMap();
+
+  async function renderNow(root) {
     root.innerHTML = '<div class="jfw-loading">Loading…</div>';
     try {
       const types = enabledTypesFromConfig(await W.getConfig());
@@ -97,6 +99,19 @@
       root.innerHTML = '<div class="jfw-error"><p>Could not load your watchlist.</p>'
         + '<button type="button" is="emby-button" class="raised jfw-retry">Retry</button></div>';
     }
+  }
+
+  function render(root) {
+    if (inflight.has(root)) {
+      inflight.set(root, true); // re-render once the current pass finishes
+      return;
+    }
+    inflight.set(root, false);
+    renderNow(root).finally(() => {
+      const again = inflight.get(root);
+      inflight.delete(root);
+      if (again) render(root);
+    });
   }
 
   function updateCount(section) {

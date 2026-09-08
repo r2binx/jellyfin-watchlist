@@ -16,15 +16,18 @@
   function createWatchlistState(api, emit) {
     const ids = new Set();
     let loading = null;
+    let generation = 0;
 
     function load() {
       if (!loading) {
+        const gen = ++generation;
         loading = api.fetchIds().then((list) => {
+          if (gen !== generation) return; // superseded by a newer refresh
           ids.clear();
           list.forEach((id) => ids.add(id));
           emit({ ids: null });
         }).catch((err) => {
-          loading = null;
+          if (gen === generation) loading = null;
           throw err;
         });
       }

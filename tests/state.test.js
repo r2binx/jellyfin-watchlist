@@ -76,3 +76,25 @@ test('a failed load can be retried', async () => {
   await state.load();
   assert.equal(state.has('x'), true);
 });
+
+test('a stale in-flight load does not overwrite a newer refresh', async () => {
+  let resolveFirst;
+  let calls = 0;
+  const api = makeApi({
+    fetchIds: () => {
+      calls++;
+      if (calls === 1) return new Promise((resolve) => { resolveFirst = resolve; });
+      return Promise.resolve(['new']);
+    },
+  });
+  const events = [];
+  const state = createWatchlistState(api, (d) => events.push(d));
+  const first = state.load();
+  await state.refresh();
+  assert.equal(state.has('new'), true);
+  resolveFirst(['stale']);
+  await first;
+  assert.equal(state.has('new'), true);
+  assert.equal(state.has('stale'), false);
+  assert.equal(events.length, 1);
+});

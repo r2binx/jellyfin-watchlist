@@ -56,6 +56,7 @@
     if (row.querySelector('.jfw-detail-button')) return;
 
     const anchor = row.querySelector('.btnUserRating') || row.lastElementChild;
+    if (!anchor) return;
     anchor.insertAdjacentHTML('afterend', buttonHtml(id, !!(item.UserData && item.UserData.Likes)));
     const btn = row.querySelector('.jfw-detail-button');
     btn.addEventListener('click', async () => {

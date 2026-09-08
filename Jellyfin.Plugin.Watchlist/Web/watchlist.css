@@ -1,0 +1,9 @@
+.jfw-root { padding-top: 1em; }
+.jfw-section { margin-bottom: 1.5em; }
+.jfw-count { opacity: .6; font-size: .8em; margin-left: .4em; }
+.jfw-card:hover .cardOverlayContainer,
+.jfw-card:focus-within .cardOverlayContainer { opacity: 1; }
+.jfw-empty, .jfw-error, .jfw-loading { text-align: center; padding: 4em 1em; opacity: .85; }
+.jfw-empty-icon { font-size: 4em; opacity: .5; display: block; margin: 0 auto .3em; }
+.jfw-toast { position: fixed; left: 50%; bottom: 2em; transform: translate(-50%, 1em); background: rgba(0, 0, 0, .85); color: #fff; padding: .7em 1.2em; border-radius: .3em; opacity: 0; transition: opacity .25s, transform .25s; z-index: 99999; pointer-events: none; }
+.jfw-toast-visible { opacity: 1; transform: translate(-50%, 0); }

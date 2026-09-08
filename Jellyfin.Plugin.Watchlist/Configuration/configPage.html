@@ -1,0 +1,49 @@
+<div id="WatchlistConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-button,emby-checkbox">
+  <div data-role="content">
+    <div class="content-primary">
+      <form id="WatchlistConfigForm">
+        <div class="verticalSection">
+          <h2 class="sectionTitle">Watchlist page</h2>
+          <div class="fieldDescription" style="margin-bottom:1em">Choose which item types the Watchlist page lists. Items are watchlisted when their Jellyfin "Likes" user-data flag is set.</div>
+          <div class="checkboxContainer"><label><input id="ShowMovies" is="emby-checkbox" type="checkbox"/><span>Movies</span></label></div>
+          <div class="checkboxContainer"><label><input id="ShowSeries" is="emby-checkbox" type="checkbox"/><span>Series</span></label></div>
+          <div class="checkboxContainer"><label><input id="ShowSeasons" is="emby-checkbox" type="checkbox"/><span>Seasons</span></label></div>
+          <div class="checkboxContainer"><label><input id="ShowEpisodes" is="emby-checkbox" type="checkbox"/><span>Episodes</span></label></div>
+        </div>
+        <div class="verticalSection">
+          <h2 class="sectionTitle">Buttons</h2>
+          <div class="checkboxContainer"><label><input id="EnableCardOverlayButtons" is="emby-checkbox" type="checkbox"/><span>Show a watchlist button on poster hover overlays</span></label></div>
+          <div class="fieldDescription">The button on the item details page is always shown.</div>
+        </div>
+        <div class="verticalSection">
+          <button is="emby-button" type="submit" class="raised button-submit block"><span>Save</span></button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script type="text/javascript">
+    (function () {
+      var pluginId = "06dd4cfd-82bc-401c-9fde-6769ed8c4032";
+      var fields = ["ShowMovies", "ShowSeries", "ShowSeasons", "ShowEpisodes", "EnableCardOverlayButtons"];
+      var page = document.querySelector("#WatchlistConfigPage");
+
+      page.addEventListener("pageshow", function () {
+        Dashboard.showLoadingMsg();
+        ApiClient.getPluginConfiguration(pluginId).then(function (config) {
+          fields.forEach(function (f) { page.querySelector("#" + f).checked = !!config[f]; });
+          Dashboard.hideLoadingMsg();
+        });
+      });
+
+      page.querySelector("#WatchlistConfigForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        Dashboard.showLoadingMsg();
+        ApiClient.getPluginConfiguration(pluginId).then(function (config) {
+          fields.forEach(function (f) { config[f] = page.querySelector("#" + f).checked; });
+          ApiClient.updatePluginConfiguration(pluginId, config).then(Dashboard.processPluginConfigurationUpdateResult);
+        });
+        return false;
+      });
+    })();
+  </script>
+</div>

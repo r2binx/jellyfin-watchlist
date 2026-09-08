@@ -12,8 +12,8 @@
         "changelog": "See https://github.com/r2binx/jellyfin-watchlist/releases/tag/v1.0.0",
         "targetAbi": "12.0.0.0",
         "sourceUrl": "https://github.com/r2binx/jellyfin-watchlist/releases/download/v1.0.0/Jellyfin.Plugin.Watchlist_1.0.0.0.zip",
-        "checksum": "D9A629FD769BEB7BE6B464DD7B77C001",
-        "timestamp": "2026-09-08T21:43:18Z"
+        "checksum": "B4B454D8CDD522B129F84CCE58EC2117",
+        "timestamp": "2026-09-08T22:21:08Z"
       }
     ]
   }

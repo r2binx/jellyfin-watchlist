@@ -34,7 +34,10 @@
       group.dataset.jfw = '1';
       const card = group.closest('.card');
       if (!W.isWatchlistType(card.dataset.type)) return;
-      group.insertAdjacentHTML('beforeend', overlayButtonHtml(W.isOnWatchlist(card.dataset.id)));
+      const html = overlayButtonHtml(W.isOnWatchlist(card.dataset.id));
+      const menu = group.querySelector('button[data-action="menu"]');
+      if (menu) menu.insertAdjacentHTML('beforebegin', html);
+      else group.insertAdjacentHTML('beforeend', html);
     });
   }
 

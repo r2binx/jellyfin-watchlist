@@ -9,13 +9,18 @@ watchlist sync.
 ## Requirements
 
 - Jellyfin 12.x
-- [Plugin Pages](https://github.com/IAmParadox27/jellyfin-plugin-pages) 3.x (provides the sidebar entry)
+- [Plugin Pages](https://github.com/IAmParadox27/jellyfin-plugin-pages) 3.x (provides the sidebar entry; only needed for the sidebar Watchlist page — the details-page and overlay buttons work without it)
 
 ## Install
 
 1. Dashboard → Plugins → Repositories → add `https://raw.githubusercontent.com/r2binx/jellyfin-watchlist/main/manifest.json`
 2. Catalog → install **Watchlist**, restart Jellyfin.
 3. Reload the web client. "Watchlist" appears in the sidebar; a bookmark button appears on item pages and poster hover overlays.
+
+## Configuration
+
+The admin page under Dashboard → Plugins → Watchlist lets you choose which item types (Movies, Series, Seasons,
+Episodes) the Watchlist page lists, and whether the poster hover overlay button is shown.
 
 ## Build
 

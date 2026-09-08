@@ -84,7 +84,7 @@
   }
 
   const api = {
-    fetchIds: () => jf(`/Items?userId=${userId()}&Filters=Likes&Recursive=true&IncludeItemTypes=${WATCHLIST_TYPES.join(',')}&Fields=&Limit=10000`)
+    fetchIds: () => jf(`/Items?userId=${userId()}&Filters=Likes&Recursive=true&IncludeItemTypes=${WATCHLIST_TYPES.join(',')}&Limit=10000`)
       .then((res) => (res && res.Items ? res.Items : []).map((i) => i.Id)),
     setLike: (id, liked) => jf(`/UserItems/${encodeURIComponent(id)}/Rating?userId=${userId()}${liked ? '&likes=true' : ''}`, { type: liked ? 'POST' : 'DELETE' }),
   };
@@ -169,6 +169,7 @@
     doc.addEventListener('viewshow', () => {
       const now = Date.now();
       const user = userId();
+      if (!user) return;
       if (user !== lastUser || now - lastRefresh > 2000) {
         lastUser = user;
         lastRefresh = now;

@@ -10,11 +10,15 @@
     return new URLSearchParams(query).get('id');
   }
 
+  function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
   function iconFor(on) { return on ? 'bookmark' : 'bookmark_border'; }
   function titleFor(on) { return on ? 'Remove from watchlist' : 'Add to watchlist'; }
 
   function buttonHtml(id, on) {
-    return `<button is="emby-button" type="button" class="button-flat detailButton emby-button jfw-detail-button" title="${titleFor(on)}" data-id="${id}" data-on="${on ? '1' : '0'}">`
+    return `<button is="emby-button" type="button" class="button-flat detailButton emby-button jfw-detail-button" title="${titleFor(on)}" data-id="${escapeHtml(id)}" data-on="${on ? '1' : '0'}">`
       + `<div class="detailButton-content"><span class="material-icons detailButton-icon ${iconFor(on)}" aria-hidden="true"></span></div></button>`;
   }
 

@@ -18,3 +18,9 @@ test('buttonHtml renders a detailButton with the right icon and title', () => {
   assert.match(off, /title="Add to watchlist"/);
   assert.match(off, /detailButton-icon bookmark_border"/);
 });
+
+test('buttonHtml escapes the id attribute', () => {
+  const html = buttonHtml('a"b<c', false);
+  assert.match(html, /data-id="a&quot;b&lt;c"/);
+  assert.doesNotMatch(html, /data-id="a"b/);
+});

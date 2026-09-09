@@ -91,6 +91,7 @@ namespace Jellyfin.Plugin.Watchlist.Services
             }
         }
 
+        // This mapping must cover every kind RemovalPolicy.CandidateKinds can return.
         private static BaseItem? EntityFor(BaseItem item, BaseItemKind kind)
         {
             if (kind == item.GetBaseItemKind())
@@ -107,6 +108,11 @@ namespace Jellyfin.Plugin.Watchlist.Services
             };
         }
 
+        /// <summary>
+        /// A Season or Series is checked for unplayed episodes even when it is itself the played item, because
+        /// Jellyfin's hand-marked cascade may not have committed the episodes yet and the last episode event
+        /// removes the parent anyway.
+        /// </summary>
         private void TryRemove(User user, BaseItem candidate)
         {
             var userData = _userDataManager.GetUserData(user, candidate);

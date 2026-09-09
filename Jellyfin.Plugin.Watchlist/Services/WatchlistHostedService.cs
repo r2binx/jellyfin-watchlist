@@ -40,6 +40,8 @@ namespace Jellyfin.Plugin.Watchlist.Services
 
         private async Task RegisterHomeSectionAsync(CancellationToken token)
         {
+            Exception? lastFailure = null;
+
             for (var attempt = 1; attempt <= RegistrationAttempts && !token.IsCancellationRequested; attempt++)
             {
                 try
@@ -53,6 +55,7 @@ namespace Jellyfin.Plugin.Watchlist.Services
                 }
                 catch (Exception ex)
                 {
+                    lastFailure = ex;
                     _logger.LogDebug(ex, "Watchlist: home section registration failed on attempt {Attempt}", attempt);
                 }
 
@@ -66,7 +69,14 @@ namespace Jellyfin.Plugin.Watchlist.Services
                 }
             }
 
-            _logger.LogInformation("Watchlist: Home Screen Sections not found; home row unavailable");
+            if (lastFailure != null)
+            {
+                _logger.LogWarning(lastFailure, "Watchlist: Home Screen Sections is installed but registering the home row failed; the row will be missing until the next restart");
+            }
+            else
+            {
+                _logger.LogInformation("Watchlist: Home Screen Sections not found; home row unavailable");
+            }
         }
     }
 }

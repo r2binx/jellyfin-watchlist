@@ -36,6 +36,12 @@ namespace Jellyfin.Plugin.Watchlist.HomeSection
 
         public QueryResult<BaseItemDto> GetResults(WatchlistSectionRequest request)
         {
+            var userId = request?.UserId ?? Guid.Empty;
+            if (userId == Guid.Empty)
+            {
+                return new QueryResult<BaseItemDto>();
+            }
+
             try
             {
                 var config = Plugin.Instance?.Configuration ?? new PluginConfiguration();
@@ -44,7 +50,7 @@ namespace Jellyfin.Plugin.Watchlist.HomeSection
                     return new QueryResult<BaseItemDto>();
                 }
 
-                var user = _userManager.GetUserById(request.UserId);
+                var user = _userManager.GetUserById(userId);
                 if (user == null)
                 {
                     return new QueryResult<BaseItemDto>();
@@ -79,7 +85,7 @@ namespace Jellyfin.Plugin.Watchlist.HomeSection
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Watchlist: home row query failed for user {UserId}", request.UserId);
+                _logger.LogWarning(ex, "Watchlist: home row query failed for user {UserId}", userId);
                 return new QueryResult<BaseItemDto>();
             }
         }

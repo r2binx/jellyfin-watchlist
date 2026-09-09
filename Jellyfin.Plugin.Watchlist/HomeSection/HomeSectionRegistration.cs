@@ -31,12 +31,15 @@ namespace Jellyfin.Plugin.Watchlist.HomeSection
             var parse = payloadType.GetMethod("Parse", BindingFlags.Public | BindingFlags.Static, new[] { typeof(string) });
             if (parse == null)
             {
-                logger.LogWarning("Watchlist: Home Screen Sections RegisterSection has an unexpected parameter type {Type}", payloadType.FullName);
-                return false;
+                throw new InvalidOperationException($"Watchlist: Home Screen Sections RegisterSection has an unexpected parameter type {payloadType.FullName}");
             }
 
             var resultsAssembly = typeof(HomeSectionRegistration).Assembly.FullName ?? "Jellyfin.Plugin.Watchlist";
             var payload = parse.Invoke(null, new object[] { HomeSectionPayload.ToJson(resultsAssembly) });
+            if (payload == null)
+            {
+                throw new InvalidOperationException("Watchlist: Home Screen Sections payload did not parse");
+            }
 
             try
             {

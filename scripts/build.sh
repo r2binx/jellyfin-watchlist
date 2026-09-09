@@ -13,10 +13,17 @@ else
   user_args=(--user "$(id -u):$(id -g)")
 fi
 
+if [ "${1:-}" = "test" ]; then
+  shift
+  cmd=(dotnet test tests/Jellyfin.Plugin.Watchlist.Tests -c Release "$@")
+else
+  cmd=(dotnet build Jellyfin.Plugin.Watchlist/Jellyfin.Plugin.Watchlist.csproj -c Release "$@")
+fi
+
 exec docker run --rm \
   "${user_args[@]}" \
   -e HOME=/tmp -e DOTNET_CLI_HOME=/tmp -e DOTNET_CLI_TELEMETRY_OPTOUT=1 -e NUGET_PACKAGES=/nuget \
   -v "$PWD/.nuget-cache":/nuget \
   -v "$PWD":/src -w /src \
   mcr.microsoft.com/dotnet/sdk:10.0 \
-  dotnet build Jellyfin.Plugin.Watchlist/Jellyfin.Plugin.Watchlist.csproj -c Release "$@"
+  "${cmd[@]}"

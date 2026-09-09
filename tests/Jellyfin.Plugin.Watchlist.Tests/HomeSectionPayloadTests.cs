@@ -47,4 +47,13 @@ public class HomeSectionPayloadTests
         Assert.Equal("Watchlist", doc.RootElement.GetProperty("displayText").GetString());
         Assert.Equal(HomeSectionPayload.SectionId, doc.RootElement.GetProperty("id").GetString());
     }
+
+    [Fact]
+    public void TranslationPackJson_MapsTheSectionIdToTheDisplayTextInEnglish()
+    {
+        using var doc = JsonDocument.Parse(HomeSectionPayload.TranslationPackJson());
+        Assert.Single(doc.RootElement.EnumerateObject());
+        Assert.Equal(HomeSectionPayload.DisplayText, doc.RootElement.GetProperty(HomeSectionPayload.SectionId).GetString());
+        Assert.Equal("en", HomeSectionPayload.TranslationLanguage);
+    }
 }

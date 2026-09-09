@@ -14,12 +14,14 @@ namespace Jellyfin.Plugin.Watchlist.Services
         public static readonly TimeSpan RegistrationDelay = TimeSpan.FromSeconds(2);
 
         private readonly PlayedWatchlistRemover _remover;
+        private readonly IServiceProvider _services;
         private readonly ILogger<WatchlistHostedService> _logger;
         private readonly CancellationTokenSource _stopping = new();
 
-        public WatchlistHostedService(PlayedWatchlistRemover remover, ILogger<WatchlistHostedService> logger)
+        public WatchlistHostedService(PlayedWatchlistRemover remover, IServiceProvider services, ILogger<WatchlistHostedService> logger)
         {
             _remover = remover;
+            _services = services;
             _logger = logger;
         }
 
@@ -48,6 +50,7 @@ namespace Jellyfin.Plugin.Watchlist.Services
                 {
                     if (HomeSectionRegistration.TryRegister(_logger))
                     {
+                        RegisterLabel();
                         return;
                     }
 
@@ -76,6 +79,21 @@ namespace Jellyfin.Plugin.Watchlist.Services
             else
             {
                 _logger.LogInformation("Watchlist: Home Screen Sections not found; home row unavailable");
+            }
+        }
+
+        private void RegisterLabel()
+        {
+            try
+            {
+                if (!HomeSectionTranslation.TryRegisterLabel(_services, _logger))
+                {
+                    _logger.LogWarning("Watchlist: Home Screen Sections has no translation manager; its settings page will mislabel the Watchlist checkbox");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Watchlist: adding the home row label to Home Screen Sections failed; its settings page will mislabel the Watchlist checkbox");
             }
         }
     }

@@ -18,28 +18,14 @@ namespace Jellyfin.Plugin.Watchlist.HomeSection
         /// <summary>Returns true when the section is registered (now or already). Throws when the plugin is present but the call fails.</summary>
         public static bool TryRegister(ILogger logger)
         {
-            var assembly = AssemblyLoadContext.All
-                .SelectMany(c => c.Assemblies)
-                .FirstOrDefault(a => a.GetName().Name == AssemblyName);
-            var register = assembly?.GetType(InterfaceType)?.GetMethod(RegisterMethod, BindingFlags.Public | BindingFlags.Static);
+            var register = FindAssembly()?.GetType(InterfaceType)?.GetMethod(RegisterMethod, BindingFlags.Public | BindingFlags.Static);
             if (register == null)
             {
                 return false;
             }
 
-            var payloadType = register.GetParameters()[0].ParameterType;
-            var parse = payloadType.GetMethod("Parse", BindingFlags.Public | BindingFlags.Static, new[] { typeof(string) });
-            if (parse == null)
-            {
-                throw new InvalidOperationException($"Watchlist: Home Screen Sections RegisterSection has an unexpected parameter type {payloadType.FullName}");
-            }
-
             var resultsAssembly = typeof(HomeSectionRegistration).Assembly.FullName ?? "Jellyfin.Plugin.Watchlist";
-            var payload = parse.Invoke(null, new object[] { HomeSectionPayload.ToJson(resultsAssembly) });
-            if (payload == null)
-            {
-                throw new InvalidOperationException("Watchlist: Home Screen Sections payload did not parse");
-            }
+            var payload = ParseWith(register.GetParameters()[0].ParameterType, HomeSectionPayload.ToJson(resultsAssembly));
 
             try
             {
@@ -53,6 +39,24 @@ namespace Jellyfin.Plugin.Watchlist.HomeSection
 
             logger.LogInformation("Watchlist: registered home row with Home Screen Sections");
             return true;
+        }
+
+        /// <summary>The loaded Home Screen Sections assembly, or null when that plugin is not installed.</summary>
+        public static Assembly? FindAssembly() => AssemblyLoadContext.All
+            .SelectMany(c => c.Assemblies)
+            .FirstOrDefault(a => a.GetName().Name == AssemblyName);
+
+        /// <summary>Parses JSON with the static <c>Parse(string)</c> of a JObject type loaded in the other plugin's context.</summary>
+        public static object ParseWith(Type jsonType, string json)
+        {
+            var parse = jsonType.GetMethod("Parse", BindingFlags.Public | BindingFlags.Static, new[] { typeof(string) });
+            if (parse == null)
+            {
+                throw new InvalidOperationException($"Watchlist: Home Screen Sections expects an unexpected JSON type {jsonType.FullName}");
+            }
+
+            return parse.Invoke(null, new object[] { json })
+                ?? throw new InvalidOperationException("Watchlist: Home Screen Sections payload did not parse");
         }
     }
 }

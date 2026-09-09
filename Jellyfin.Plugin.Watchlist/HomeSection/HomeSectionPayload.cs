@@ -11,6 +11,8 @@ namespace Jellyfin.Plugin.Watchlist.HomeSection
         public const string DisplayText = "Watchlist";
         public const string ResultsClass = "Jellyfin.Plugin.Watchlist.HomeSection.WatchlistSectionResults";
         public const string ResultsMethod = "GetResults";
+        /// <summary>Other languages fall back to this pack in Home Screen Sections, so one entry labels the row everywhere.</summary>
+        public const string TranslationLanguage = "en";
 
         public static IReadOnlyDictionary<string, object> Build(string resultsAssembly) => new Dictionary<string, object>
         {
@@ -23,5 +25,8 @@ namespace Jellyfin.Plugin.Watchlist.HomeSection
         };
 
         public static string ToJson(string resultsAssembly) => JsonSerializer.Serialize(Build(resultsAssembly));
+
+        /// <summary>The translation entry Home Screen Sections' settings page uses to label the row's checkbox.</summary>
+        public static string TranslationPackJson() => JsonSerializer.Serialize(new Dictionary<string, string> { [SectionId] = DisplayText });
     }
 }

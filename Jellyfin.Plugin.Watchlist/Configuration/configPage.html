@@ -1,10 +1,10 @@
-<div id="WatchlistConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-button,emby-checkbox">
+<div id="WatchlistConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-button,emby-checkbox,emby-input">
   <div data-role="content">
     <div class="content-primary">
       <form id="WatchlistConfigForm">
         <div class="verticalSection">
           <h2 class="sectionTitle">Watchlist page</h2>
-          <div class="fieldDescription" style="margin-bottom:1em">Choose which item types the Watchlist page lists. Items are watchlisted when their Jellyfin "Likes" user-data flag is set.</div>
+          <div class="fieldDescription" style="margin-bottom:1em">Choose which item types the Watchlist page and the home screen row list. Items are watchlisted when their Jellyfin "Likes" user-data flag is set.</div>
           <div class="checkboxContainer"><label><input id="ShowMovies" is="emby-checkbox" type="checkbox"/><span>Movies</span></label></div>
           <div class="checkboxContainer"><label><input id="ShowSeries" is="emby-checkbox" type="checkbox"/><span>Series</span></label></div>
           <div class="checkboxContainer"><label><input id="ShowSeasons" is="emby-checkbox" type="checkbox"/><span>Seasons</span></label></div>
@@ -16,6 +16,16 @@
           <div class="fieldDescription">The button on the item details page is always shown.</div>
         </div>
         <div class="verticalSection">
+          <h2 class="sectionTitle">Automation and home screen</h2>
+          <div class="checkboxContainer"><label><input id="AutoRemovePlayed" is="emby-checkbox" type="checkbox"/><span>Remove items from the watchlist once played</span></label></div>
+          <div class="fieldDescription" style="margin-bottom:1em">Movies and episodes leave when played. Series and seasons leave when none of their episodes are unplayed. Applies to every user.</div>
+          <div class="checkboxContainer"><label><input id="EnableHomeSection" is="emby-checkbox" type="checkbox"/><span>Provide a Watchlist row for the Home Screen Sections plugin</span></label></div>
+          <div class="fieldDescription" style="margin-bottom:1em">Requires the Home Screen Sections plugin. Users enable and order the row in their own home screen settings.</div>
+          <div class="inputContainer">
+            <input id="HomeSectionLimit" is="emby-input" type="number" min="1" max="100" step="1" label="Maximum items in the home row"/>
+          </div>
+        </div>
+        <div class="verticalSection">
           <button is="emby-button" type="submit" class="raised button-submit block"><span>Save</span></button>
         </div>
       </form>
@@ -24,13 +34,20 @@
   <script type="text/javascript">
     (function () {
       var pluginId = "06dd4cfd-82bc-401c-9fde-6769ed8c4032";
-      var fields = ["ShowMovies", "ShowSeries", "ShowSeasons", "ShowEpisodes", "EnableCardOverlayButtons"];
+      var boolFields = ["ShowMovies", "ShowSeries", "ShowSeasons", "ShowEpisodes", "EnableCardOverlayButtons", "AutoRemovePlayed", "EnableHomeSection"];
       var page = document.querySelector("#WatchlistConfigPage");
+
+      function clampLimit(value) {
+        var n = parseInt(value, 10);
+        if (isNaN(n)) return 16;
+        return Math.min(100, Math.max(1, n));
+      }
 
       page.addEventListener("pageshow", function () {
         Dashboard.showLoadingMsg();
         ApiClient.getPluginConfiguration(pluginId).then(function (config) {
-          fields.forEach(function (f) { page.querySelector("#" + f).checked = !!config[f]; });
+          boolFields.forEach(function (f) { page.querySelector("#" + f).checked = !!config[f]; });
+          page.querySelector("#HomeSectionLimit").value = clampLimit(config.HomeSectionLimit);
           Dashboard.hideLoadingMsg();
         });
       });
@@ -39,7 +56,8 @@
         e.preventDefault();
         Dashboard.showLoadingMsg();
         ApiClient.getPluginConfiguration(pluginId).then(function (config) {
-          fields.forEach(function (f) { config[f] = page.querySelector("#" + f).checked; });
+          boolFields.forEach(function (f) { config[f] = page.querySelector("#" + f).checked; });
+          config.HomeSectionLimit = clampLimit(page.querySelector("#HomeSectionLimit").value);
           ApiClient.updatePluginConfiguration(pluginId, config).then(Dashboard.processPluginConfigurationUpdateResult);
         });
         return false;

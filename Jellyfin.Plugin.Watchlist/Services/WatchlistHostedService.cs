@@ -1,13 +1,21 @@
+using Jellyfin.Plugin.Watchlist.HomeSection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Jellyfin.Plugin.Watchlist.Services
 {
-    /// <summary>Starts the event listener once Jellyfin is up and stops it on shutdown.</summary>
+    /// <summary>
+    /// Starts the event listener once Jellyfin is up, registers the home row with Home Screen Sections
+    /// (retrying briefly in case that plugin initialises after us), and detaches on shutdown.
+    /// </summary>
     public sealed class WatchlistHostedService : IHostedService
     {
+        public const int RegistrationAttempts = 5;
+        public static readonly TimeSpan RegistrationDelay = TimeSpan.FromSeconds(2);
+
         private readonly PlayedWatchlistRemover _remover;
         private readonly ILogger<WatchlistHostedService> _logger;
+        private readonly CancellationTokenSource _stopping = new();
 
         public WatchlistHostedService(PlayedWatchlistRemover remover, ILogger<WatchlistHostedService> logger)
         {
@@ -19,14 +27,46 @@ namespace Jellyfin.Plugin.Watchlist.Services
         {
             _remover.Subscribe();
             _logger.LogInformation("Watchlist: auto-removal listener attached");
-            // TODO: add home-section registration here
+            _ = Task.Run(() => RegisterHomeSectionAsync(_stopping.Token), CancellationToken.None);
             return Task.CompletedTask;
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
+            _stopping.Cancel();
             _remover.Unsubscribe();
             return Task.CompletedTask;
+        }
+
+        private async Task RegisterHomeSectionAsync(CancellationToken token)
+        {
+            for (var attempt = 1; attempt <= RegistrationAttempts && !token.IsCancellationRequested; attempt++)
+            {
+                try
+                {
+                    if (HomeSectionRegistration.TryRegister(_logger))
+                    {
+                        return;
+                    }
+
+                    _logger.LogDebug("Watchlist: Home Screen Sections not available on attempt {Attempt}", attempt);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogDebug(ex, "Watchlist: home section registration failed on attempt {Attempt}", attempt);
+                }
+
+                try
+                {
+                    await Task.Delay(RegistrationDelay, token).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    return;
+                }
+            }
+
+            _logger.LogInformation("Watchlist: Home Screen Sections not found; home row unavailable");
         }
     }
 }

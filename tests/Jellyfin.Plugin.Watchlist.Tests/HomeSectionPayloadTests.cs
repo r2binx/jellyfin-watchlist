@@ -1,0 +1,43 @@
+using System.Text.Json;
+using Jellyfin.Plugin.Watchlist.HomeSection;
+using Xunit;
+
+namespace Jellyfin.Plugin.Watchlist.Tests;
+
+public class HomeSectionPayloadTests
+{
+    [Fact]
+    public void Build_ContainsExactlyTheRegistrationFields()
+    {
+        var payload = HomeSectionPayload.Build("Jellyfin.Plugin.Watchlist, Version=1.1.0.0");
+
+        Assert.Equal(
+            new[] { "displayText", "id", "limit", "resultsAssembly", "resultsClass", "resultsMethod" },
+            payload.Keys.Order(StringComparer.Ordinal).ToArray());
+        Assert.Equal("7f6a3f7a-6d7c-4b2c-9a1e-3c0c2d8b5e41", payload["id"]);
+        Assert.Equal("Watchlist", payload["displayText"]);
+        Assert.Equal(1, payload["limit"]);
+        Assert.Equal("Jellyfin.Plugin.Watchlist, Version=1.1.0.0", payload["resultsAssembly"]);
+        Assert.Equal("Jellyfin.Plugin.Watchlist.HomeSection.WatchlistSectionResults", payload["resultsClass"]);
+        Assert.Equal("GetResults", payload["resultsMethod"]);
+    }
+
+    [Fact]
+    public void Build_HasNoRouteSoTheHeaderIsNotALink()
+    {
+        var payload = HomeSectionPayload.Build("asm");
+        Assert.False(payload.ContainsKey("route"));
+        Assert.False(payload.ContainsKey("additionalData"));
+        Assert.False(payload.ContainsKey("resultsEndpoint"));
+    }
+
+    [Fact]
+    public void ToJson_RoundTripsWithCamelCaseKeysAndNumericLimit()
+    {
+        var json = HomeSectionPayload.ToJson("asm");
+        using var doc = JsonDocument.Parse(json);
+        Assert.Equal(1, doc.RootElement.GetProperty("limit").GetInt32());
+        Assert.Equal("Watchlist", doc.RootElement.GetProperty("displayText").GetString());
+        Assert.Equal(HomeSectionPayload.SectionId, doc.RootElement.GetProperty("id").GetString());
+    }
+}

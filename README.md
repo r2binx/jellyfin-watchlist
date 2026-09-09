@@ -11,7 +11,7 @@ Jellyfin-Enhanced's Seerr watchlist sync.
 
 - Jellyfin 12.x
 - Optional: [Plugin Pages](https://github.com/IAmParadox27/jellyfin-plugin-pages) 3.x for the sidebar Watchlist page. The details-page and overlay buttons work without it.
-- Optional: [Home Screen Sections](https://github.com/IAmParadox27/jellyfin-plugin-home-sections) 3.x for the Watchlist home screen row. Users enable and order the row in their home screen settings like any other section.
+- Optional: [Home Screen Sections](https://github.com/IAmParadox27/jellyfin-plugin-home-sections) 3.x for the Watchlist home screen row. After installing Watchlist, open Dashboard → Plugins → Home Screen Sections → Section Settings once and save: that plugin only lists sections that have an entry there, and its settings page adds newly registered ones. Users then enable and order the row in their home screen settings like any other section.
 
 ## Install
 

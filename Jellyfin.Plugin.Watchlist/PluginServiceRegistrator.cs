@@ -1,3 +1,4 @@
+using Jellyfin.Plugin.Watchlist.Services;
 using MediaBrowser.Controller;
 using MediaBrowser.Controller.Plugins;
 using Microsoft.AspNetCore.Hosting;
@@ -10,6 +11,8 @@ namespace Jellyfin.Plugin.Watchlist
         public void RegisterServices(IServiceCollection serviceCollection, IServerApplicationHost applicationHost)
         {
             serviceCollection.AddSingleton<IStartupFilter, ScriptInjectionStartupFilter>();
+            serviceCollection.AddSingleton<PlayedWatchlistRemover>();
+            serviceCollection.AddHostedService<WatchlistHostedService>();
         }
     }
 }

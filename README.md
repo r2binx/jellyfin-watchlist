@@ -26,7 +26,7 @@ Dashboard → Plugins → Watchlist:
 - **Item types** (Movies, Series, Seasons, Episodes): what the Watchlist page and the home screen row list.
 - **Overlay button**: whether the poster hover overlay gets a watchlist button.
 - **Remove items from the watchlist once played** (default off): movies and episodes leave when played, series and
-  seasons leave once none of their episodes is unplayed. Marking played by hand counts. Applies to every user.
+  seasons leave once none of their episodes is unplayed, specials included. Marking played by hand counts. Applies to every user.
   Seerr is not touched; Jellyfin-Enhanced's "prevent re-addition" option keeps its sync from adding the item back.
 - **Provide a Watchlist row for Home Screen Sections** (default on) and **Maximum items in the home row**
   (default 16): the row shows the newest library additions on the watchlist first.

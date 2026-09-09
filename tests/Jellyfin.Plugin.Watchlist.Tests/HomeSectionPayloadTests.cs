@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Jellyfin.Plugin.Watchlist.HomeSection;
 using Xunit;
 
@@ -14,12 +15,18 @@ public class HomeSectionPayloadTests
         Assert.Equal(
             new[] { "displayText", "id", "limit", "resultsAssembly", "resultsClass", "resultsMethod" },
             payload.Keys.Order(StringComparer.Ordinal).ToArray());
-        Assert.Equal("7f6a3f7a-6d7c-4b2c-9a1e-3c0c2d8b5e41", payload["id"]);
+        Assert.Equal("WatchlistPlugin", payload["id"]);
         Assert.Equal("Watchlist", payload["displayText"]);
         Assert.Equal(1, payload["limit"]);
         Assert.Equal("Jellyfin.Plugin.Watchlist, Version=1.1.0.0", payload["resultsAssembly"]);
         Assert.Equal("Jellyfin.Plugin.Watchlist.HomeSection.WatchlistSectionResults", payload["resultsClass"]);
         Assert.Equal("GetResults", payload["resultsMethod"]);
+    }
+
+    [Fact]
+    public void SectionId_IsAValidCssClassNameBecauseTheLoaderUsesItAsOne()
+    {
+        Assert.Matches(new Regex("^[A-Za-z_][A-Za-z0-9_-]*$"), HomeSectionPayload.SectionId);
     }
 
     [Fact]

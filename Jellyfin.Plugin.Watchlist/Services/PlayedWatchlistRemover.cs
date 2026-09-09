@@ -67,7 +67,7 @@ namespace Jellyfin.Plugin.Watchlist.Services
                     return;
                 }
 
-                foreach (var candidate in Candidates(item))
+                foreach (var candidate in Resolve(item, kinds))
                 {
                     TryRemove(user, candidate);
                 }
@@ -78,21 +78,33 @@ namespace Jellyfin.Plugin.Watchlist.Services
             }
         }
 
-        /// <summary>The played item, then its parents in RemovalPolicy.CandidateKinds order, skipping missing parents.</summary>
-        private static IEnumerable<BaseItem> Candidates(BaseItem item)
+        /// <summary>Resolves the entity for each kind RemovalPolicy.CandidateKinds returns, skipping missing parents.</summary>
+        private static IEnumerable<BaseItem> Resolve(BaseItem item, IReadOnlyList<BaseItemKind> kinds)
         {
-            yield return item;
-
-            switch (item)
+            foreach (var kind in kinds)
             {
-                case Episode episode:
-                    if (episode.Season != null) yield return episode.Season;
-                    if (episode.Series != null) yield return episode.Series;
-                    break;
-                case Season season:
-                    if (season.Series != null) yield return season.Series;
-                    break;
+                var entity = EntityFor(item, kind);
+                if (entity != null)
+                {
+                    yield return entity;
+                }
             }
+        }
+
+        private static BaseItem? EntityFor(BaseItem item, BaseItemKind kind)
+        {
+            if (kind == item.GetBaseItemKind())
+            {
+                return item;
+            }
+
+            return item switch
+            {
+                Episode episode when kind == BaseItemKind.Season => episode.Season,
+                Episode episode when kind == BaseItemKind.Series => episode.Series,
+                Season season when kind == BaseItemKind.Series => season.Series,
+                _ => null,
+            };
         }
 
         private void TryRemove(User user, BaseItem candidate)
